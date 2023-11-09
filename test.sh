@@ -27,13 +27,16 @@ tail -n +2 "$INPUT_FILE" | while IFS='    ' read -r a b c; do
   tmp_output_file="/tmp/curl_output.txt"
   eval "$curl_command" > "$tmp_output_file"
 
+  # 获取当前日期时间
+  current_datetime=$(date +'%Y-%m-%d %H:%M:%S')
+
   # 检查是否成功
   if grep -q "HTTP/2 200" "$tmp_output_file"; then
     # 请求成功，将结果保存到输出文件，保持原格式
     echo -e "$a    $b    $c" >> "$OUTPUT_FILE"
   else
-    # 请求失败，跳过该行并将错误信息写入日志
-    echo "Skipping entry with error: $a    $b    $c" | tee -a "$LOG_FILE"
+    # 请求失败，跳过该行并将错误信息写入日志，包括日期时间戳
+    echo "[$current_datetime] Skipping entry with error: $a    $b    $c" | tee -a "$LOG_FILE"
   fi
 
   # 删除临时文件
